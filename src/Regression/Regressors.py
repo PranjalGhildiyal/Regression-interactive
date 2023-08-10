@@ -1,10 +1,7 @@
 import pandas as pd
 import numpy as np
+import sklearn
 import mlflow
-from sklearn.linear_model import ElasticNet, SGDRegressor, LinearRegression, Ridge, Lasso
-from sklearn.svm import SVR
-from xgboost import XGBRegressor
-from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor, VotingRegressor, StackingRegressor, GradientBoostingRegressor, ExtraTreesRegressor, BaggingRegressor, AdaBoostRegressor
 
 from Regression import Regression
 
@@ -22,23 +19,9 @@ class Regressor(Regression):
                 random_state:int=0,
                 **kwargs):
 
-        self.model_assignment= {
-                                'LinearRegression': LinearRegression,
-                                'SGDRegressor': SGDRegressor,
-                                'Lasso': Lasso,
-                                'ElasticNet': ElasticNet,
-                                'Ridge': Ridge,
-                                'SVR': SVR,
-                                'AdaboostRegressor': AdaBoostRegressor,
-                                'BaggingRegressor': BaggingRegressor,
-                                'HistGradientBoostingRegressor':  HistGradientBoostingRegressor,
-                                'VotingRegressor': VotingRegressor,
-                                'StackingRegressor': StackingRegressor,
-                                'GradientBoostingRegressor': GradientBoostingRegressor,
-                                'ExtraTreesRegressor':ExtraTreesRegressor,
-                                'XGBRegressor': XGBRegressor
-                                }
+        self.
         super().__init__(data, target_column, train_size, test_size, datetime_column, random_state)
+        self.model_type= model_type
         session = mlflow.start_run()
         
         with session :
@@ -94,7 +77,7 @@ class Regressor(Regression):
             
             return self
 
-    def tune(**kwargs):
+    def tune(self, **kwargs):
         def objective(trial):
             params=self.get_params()
             param= 

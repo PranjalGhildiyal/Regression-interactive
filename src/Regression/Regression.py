@@ -5,6 +5,8 @@ from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error 
 from sklearn.metrics import mean_absolute_percentage_error   
 from sklearn.metrics import mean_absolute_error
+from ...config.model_types import ModelAssignment
+
 from ..Exceptions.index import *
 
 
@@ -61,3 +63,11 @@ class Regression:
         print('r2_score: {}\nmse:{}\nrmse:{}\nmape:{}\nmae:{}'.format(score, mse, rmse, mape, mae))
 
         return (score, mse, rmse, mape, mae)
+    
+    @staticmethod
+    def get_model(model_type:str):
+        available_models= ModelAssignment.regression
+        if model_type in available_models.keys():
+            return available_models[model_type]
+        else:
+            raise InvalidModelException
