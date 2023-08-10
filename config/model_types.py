@@ -3,9 +3,15 @@ from sklearn.svm import SVR
 from xgboost import XGBRegressor
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor, VotingRegressor, StackingRegressor, GradientBoostingRegressor, ExtraTreesRegressor, BaggingRegressor, AdaBoostRegressor
 from dataclasses import dataclass
+from typing import Union, NewType
 
 @dataclass
 class ModelAssignment:
+
+
+    #----------------------------------------------------------------
+    #                         CHANGE HERE
+    #----------------------------------------------------------------
     regression= {
                 'LinearRegression': LinearRegression,
                 'SGDRegressor': SGDRegressor,
@@ -23,10 +29,20 @@ class ModelAssignment:
                 'XGBRegressor': XGBRegressor,
                 'RandomForestRegressor': RandomForestRegressor
                 }
+    
     classification= {}
     clustering= {}
     dimensionality_reduction= {}
     scalers= {}
+
+    #--------------------------------------------------------------------------
+    #
+    #---------------------------------------------------------------------------
+
+
+    RegressorModelType=  Union[*regression.values()]
+    ClusteringModelType=  Union[*clustering.values()]
+    ClassificationModelType=  Union[*classification.values()]
 
 
 

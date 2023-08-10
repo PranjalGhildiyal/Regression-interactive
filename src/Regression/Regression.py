@@ -9,11 +9,6 @@ from ...config.model_types import ModelAssignment
 
 from ..Exceptions.index import *
 
-
-
-
-
-
 class Regression:
 
     def __init__(self, data:pd.DataFrame, target_column:str, train_size:float=0.6, test_size:float=0.2, datetime_column:str=None, random_state:int=0):
@@ -65,7 +60,7 @@ class Regression:
         return (score, mse, rmse, mape, mae)
     
     @staticmethod
-    def get_model(model_type:str):
+    def get_model(model_type:str)->ModelAssignment.RegressorModelType:
         available_models= ModelAssignment.regression
         if model_type in available_models.keys():
             return available_models[model_type]
