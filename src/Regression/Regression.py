@@ -5,6 +5,8 @@ from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error 
 from sklearn.metrics import mean_absolute_percentage_error   
 from sklearn.metrics import mean_absolute_error
+from dataclasses import make_dataclass
+import inspect
 from ...config.model_types import ModelAssignment
 
 from ..Exceptions.index import *
@@ -60,8 +62,12 @@ class Regression:
         return (score, mse, rmse, mape, mae)
     
     @staticmethod
+    def get_configs()->dict:
+        return ModelAssignment.regression
+    
+    @staticmethod
     def get_model(model_type:str)->ModelAssignment.RegressorModelType:
-        available_models= ModelAssignment.regression
+        available_models= Regression.get_configs()
         if model_type in available_models.keys():
             return available_models[model_type]
         else:
@@ -69,8 +75,33 @@ class Regression:
         
     @staticmethod
     def get_all_model_names()->list:
-        return list(ModelAssignment.keys())
+        return list(Regression.get_configs().keys())
     
     @staticmethod
     def get_all_models()->list:
-        return list(ModelAssignment.values())
+        return list(Regression.get_configs().values())
+
+    @staticmethod
+    def get_extended_configs()->list:
+        knowledge= {}
+        model_assignment= Regression.get_configs()
+        for model in model_assignment.keys():
+            knowledge[model] = {}
+            signature = inspect.signature(model_assignment[model].__init__)
+            for name, param in signature.parameters.items():
+                #Iterating over parameters of a single model
+                if (name != "self") & (param.default != inspect.Parameter.empty):
+                    knowledge[model][name]= type(param.default)
+        return knowledge
+
+    @staticmethod
+    def get_dataclasses()->dict:
+        data_classes= {}
+        ext_configs= Regression.get_extended_configs()
+        
+        for model in ext_configs.keys():
+            fields = [(name, param_type) for name, param_type in ext_configs[model].items()]
+            data_classes[model] = make_dataclass(model, fields)
+        
+        return data_classes
+
