@@ -7,12 +7,10 @@ from typing import Union, NewType
 
 @dataclass
 class ModelAssignment:
-
-
     #----------------------------------------------------------------
     #                         CHANGE HERE
     #----------------------------------------------------------------
-    regression= {
+    regression:dict= {
                 'LinearRegression': LinearRegression,
                 'SGDRegressor': SGDRegressor,
                 'Lasso': Lasso,
@@ -30,10 +28,10 @@ class ModelAssignment:
                 'RandomForestRegressor': RandomForestRegressor
                 }
     
-    classification= {}
-    clustering= {}
-    dimensionality_reduction= {}
-    scalers= {}
+    classification:dict= {}
+    clustering:dict= {}
+    dimensionality_reduction:dict= {}
+    scalers:dict= {}
 
     #--------------------------------------------------------------------------
     #

@@ -66,3 +66,11 @@ class Regression:
             return available_models[model_type]
         else:
             raise InvalidModelException
+        
+    @staticmethod
+    def get_all_model_names()->list:
+        return list(ModelAssignment.keys())
+    
+    @staticmethod
+    def get_all_models()->list:
+        return list(ModelAssignment.values())

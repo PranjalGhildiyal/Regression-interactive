@@ -20,7 +20,7 @@ class Regressor(Regression):
                 test_size:float=0.2, 
                 datetime_column:str=None,
                 random_state:int=0,
-                **kwargs):
+                **kwargs)->'Regressor':
 
         super().__init__(data, target_column, train_size, test_size, datetime_column, random_state)
         self.model_type= Regression.get_model(model_type)
@@ -79,20 +79,9 @@ class Regressor(Regression):
             
             return self
 
-    def tune(self, **kwargs):
-
-        def objective(trial):
-            n_estimators = trial.suggest_int('n_estimators', n_estimators_range[0], n_estimators_range[1])
-            max_depth = int(trial.suggest_loguniform('max_depth', max_depth_range[0], max_depth_range[1]))
-            regressor = self.model_type(n_estimators = n_estimators,  max_depth = max_depth)
-            return np.absolute(sklearn.model_selection.cross_val_score(regressor, self.X, self.y, scoring=scoring, n_jobs=-1, cv=cv['cv'])).mean()
-        pass
-
-        
-
     def tune(self,
             buttons:dict=None,
-            **kwargs)->self:
+            **kwargs)->'Regressor':
 
         def objective(trial):
             n_estimators = trial.suggest_int('n_estimators', n_estimators_range[0], n_estimators_range[1])
