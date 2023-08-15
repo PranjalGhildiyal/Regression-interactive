@@ -29,6 +29,13 @@ class Visualize_ML:
 
         return data.drop(bad_columns, axis = 1)
     
+    @staticmethod
+    def make_options(widget, default, watcher_func):
+        text_field=  pn.widgets.TextInput(name=widget.name, placeholder='defaults to {}'.format(default))
+        text_field.param.watch(watcher_func, 'value')
+        return pn.Row(widget,text_field)
+    
+    
 
 class Visualize_Regression(Visualize_ML):
     def __init__(self, data:pd.DataFrame):
@@ -37,17 +44,35 @@ class Visualize_Regression(Visualize_ML):
         self.model_info= {}
         self.evaluate_buttons= {}
         self.tab_num= 0
-        self.tab_buttons= {}
+        self.config_panel= {}
 
 
     def make_fields(self, tab_num):
-        self.tab_buttons[tab_num] = {}
+        self.config_panel[tab_num] = pn.Column()
         for hyperparameter in self.model_info[tab_num].keys():
-            if self.model_info[tab_num][hyperparameter] == bool:
-                self.tab_buttons[tab_num][hyperparameter] = pn.widgets.Button(name= hyperparameter, button_type= 'primary')
-                self.tab_buttons[tab_num][hyperparameter].onclick(lambda x: )
-            if self.model_info[tab_num][hyperparameter] == float:
-                self.tab_buttons[tab_num][hyperparameter] = pn.widgets.EditableFloatSlider(name=hyperparameter, ##################################################
+            default_value= hyperparameter['default']
+
+
+            if self.model_info[tab_num][hyperparameter] == type(bool):
+                widget = pn.widgets.Button(name= hyperparameter, button_type= 'primary')
+                
+            if self.model_info[tab_num][hyperparameter] == type(float):
+                widget = pn.widgets.EditableFloatSlider(name=hyperparameter, start=0, end=100, step=0.1, value=float(default_value))
+                                                        
+            if self.model_info[tab_num][hyperparameter] == type(int):
+                widget= pn.widgets.EditableIntSlider(name=hyperparameter, start=0, end=100, step=1, value=int(default_value))
+
+            else:
+                widget=pn.Column()
+
+            widget.param.watch(self.change, 'value')
+
+            self.config_panel[tab_num].append(Visualize_ML.make_options(widget, default_value))
+            # self.tab_buttons[tab_num][hyperparameter].onclick(lambda x: )
+
+            
+    def change_text_fields(self, event=None):
+        pass
 
 
     def change(self, event= None):
@@ -70,6 +95,14 @@ class Visualize_Regression(Visualize_ML):
 
         #Defining dataclasses for this selection:
         model_info= self.model_info[self.tab_num] = Regression.get_dataclasses([self.model_types[self.tab_num]])
+
+        self.make_fields(self.tab_num)
+
+        
+
+
+
+
 
         for hyperparameter in model_info.keys():##########################################################################################################################
 
