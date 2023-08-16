@@ -111,4 +111,6 @@ class Regression:
             data_classes[model] = make_dataclass(model, fields)
         
         return data_classes
+    
+    
 

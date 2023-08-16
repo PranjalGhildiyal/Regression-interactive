@@ -7,6 +7,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedKFold 
 
 from Regression import Regression
+from ...config.model_types import ModelAssignment
 
 
 class Regressor(Regression):
@@ -90,7 +91,7 @@ class Regressor(Regression):
             return np.absolute(sklearn.model_selection.cross_val_score(regressor, self.X, self.y, scoring=scoring, n_jobs=-1, cv=cv['cv'])).mean()
 
         # OPTUNA APPLICATION
-        if 'score' in scoring:
+        if 'score' in scoring_name:
             study = optuna.create_study(direction='maximize')
         else:
             study = optuna.create_study(direction='minimize')
