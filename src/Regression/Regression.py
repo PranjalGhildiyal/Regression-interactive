@@ -83,6 +83,10 @@ class Regression:
     @staticmethod
     def get_all_models()->list:
         return list(Regression.get_configs().values())
+    
+    @staticmethod
+    def get_model(model_type:str):
+        return Regression.get_configs([model_type])
 
     @staticmethod
     def get_extended_configs(model_types:list)->list:
@@ -112,5 +116,5 @@ class Regression:
         
         return data_classes
     
-    
+
 

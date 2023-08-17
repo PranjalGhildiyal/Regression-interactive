@@ -82,13 +82,15 @@ class Visualize_Regression(Visualize_ML):
         self.template.main.append(self.tabs)
         
         
-        
-        
     def create_new_tab(self, event):
         # Seaching if the model type is already present:
         if event.new not in self.tab_numbers.keys():
             model_type= self.model_types[self.tab_num]= self.model_type_selector.value
             self.tab_numbers[event.new] = self.tab_num
+
+            # Creating initial plotly tab
+            self.plotly_simple[self.tab_num] = self.plot_plotly_pane()
+            self.plotly_optimization[self.tab_num] = self.plot_plotly_pane()
 
             # Now creating buttons
             self.make_fields(self.tab_num)
@@ -194,7 +196,37 @@ class Visualize_Regression(Visualize_ML):
         datetime_column= self.datetime_column_selector.value
         random_state= self.random_state_selector[tab_num]
         
-        self.model_objects[tab_num] = Regressor(data=new_data, target_column=target_column, model_type=model_type, train_size= train_size, test_size= test_size, datetime_column=datetime_column, random_state=random_state)
+        self.model_objects[tab_num] = Regressor(data=new_data, target_column=target_column, model_type=model_type, train_size= train_size, test_size= test_size, datetime_column=datetime_column, random_state=random_state, **hyperparameters)
+
+        train= self.model_objects[tab_num].data_for_graph['Train']
+        validation= self.model_objects[tab_num].data_for_graph['Validation']
+        test= self.model_objects[tab_num].data_for_graph['Test']
+        
+        self.plotly_simple[tab_num]= self.make_plot_pane(train, validation, test)
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def make_plot_pane(self, train:pd.DataFrame=None, validation:pd.DataFrame=None, test:pd.DataFrame=None);
+        if not all([train, test, validation]):
+            return pn.pane.Plotly('# We are still waiting for a response!')
+        
+    
+
+        
+            
+
+
+
 
 
             

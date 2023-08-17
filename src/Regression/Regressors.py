@@ -6,7 +6,7 @@ import optuna
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedKFold 
 
-from Regression import Regression
+from .Regression import Regression
 from ...config.model_types import ModelAssignment
 
 
@@ -24,7 +24,7 @@ class Regressor(Regression):
                 **kwargs)->'Regressor':
 
         super().__init__(data, target_column, train_size, test_size, datetime_column, random_state)
-        self.model_type= Regression.get_model(model_type)
+        self.model_type= Regression.get_model([model_type])
         session = mlflow.start_run()
         
         with session :
