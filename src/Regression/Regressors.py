@@ -6,8 +6,8 @@ import optuna
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedKFold 
 
-from .Regression import Regression
-from ...config.model_types import ModelAssignment
+from src.Regression.Regression import Regression
+from config.model_types import RegressionModelAssignment
 
 
 class Regressor(Regression):
@@ -24,7 +24,7 @@ class Regressor(Regression):
                 **kwargs)->'Regressor':
 
         super().__init__(data, target_column, train_size, test_size, datetime_column, random_state)
-        self.model_type= Regression.get_model([model_type])
+        self.model_type=RegressionModelAssignment(model_type).model
         session = mlflow.start_run()
         
         with session :
@@ -79,27 +79,43 @@ class Regressor(Regression):
             mlflow.sklearn.log_model(self.model, "model")
             
             return self
+        
+class Optimizer(Regression):
 
-    def tune(self,
-            buttons:dict=None,
-            **kwargs)->'Regressor':
+
+    def __init__(self, 
+                data:pd.DataFrame, 
+                target_column:str,
+                model_type:str='LinearRegression',
+                train_size:float=0.6,
+                test_size:float=0.2, 
+                datetime_column:str=None,
+                random_state:int=0,
+                scoring:str,
+                cv:dict,
+                buttons:dict=None,
+                n_trials:int=100,
+                **kwargs)->'Regressor':
+        
+        super().__init__(data, target_column, train_size, test_size, datetime_column, random_state)
 
         def objective(trial):
+            hyperparameters= {}
+            for i in kwargs:
+                hyperparameters[i] = 
             n_estimators = trial.suggest_int('n_estimators', n_estimators_range[0], n_estimators_range[1])
             max_depth = int(trial.suggest_loguniform('max_depth', max_depth_range[0], max_depth_range[1]))
             regressor = self.model_type(n_estimators = n_estimators,  max_depth = max_depth)
-            return np.absolute(sklearn.model_selection.cross_val_score(regressor, self.X, self.y, scoring=scoring, n_jobs=-1, cv=cv['cv'])).mean()
+            return np.absolute(sklearn.model_selection.cross_val_score(regressor, self.X, self.y, scoring=scoring, n_jobs=-1, cv=cv['n_splits'])).mean()
 
         # OPTUNA APPLICATION
-        if 'score' in scoring_name:
+        if 'score' in scoring:
             study = optuna.create_study(direction='maximize')
         else:
             study = optuna.create_study(direction='minimize')
 
         study.optimize(objective, n_trials=n_trials)
-        trial = study.best_trial   
-        lg.info('\t\tAccuracy: {}'.format(trial.value))
-        lg.info("\t\tBest hyperparameters: {}".format(trial.params))
+        trial = study.best_trial
         self.optimization_traectory= optuna.visualization.plot_optimization_history(study)
 
         # Random Forest: final best model   
@@ -110,7 +126,7 @@ class Regressor(Regression):
 
             # Cross Validation
             cv = RepeatedKFold(n_splits=cv['n_splits'], n_repeats=cv['n_repeats'], random_state=cv['random_state'])
-            scores = cross_val_score(self.model, self.X, self.y, scoring=scoring, cv=cv['cv'], n_jobs=cv['n_jobs'])
+            scores = cross_val_score(self.model, self.X, self.y, scoring=scoring, cv=cv, n_jobs=cv['n_jobs'])
             scores = np.absolute(scores)
             mlflow.log_metric("Cross Validation: mean_{}".format(scoring), scores.mean())
             mlflow.log_metric("Cross Validation: std_{}".format(scoring), scores.std())

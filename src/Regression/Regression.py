@@ -7,7 +7,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.metrics import mean_absolute_error
 from dataclasses import make_dataclass, field
 import inspect
-from ...config.model_types import ModelAssignment
+from config.model_types import ModelArchive
 
 from ..Exceptions.index import *
 
@@ -21,6 +21,7 @@ class Regression:
         self.data= data
         self.datetime_column = datetime_column
         self.target_column = target_column
+        self.model_archive= ModelArchive().regression
 
         # Dropping nan values
         data= data.dropna()
@@ -40,13 +41,12 @@ class Regression:
         self.y_test = self.data_test[target_column]
         self.data_for_graph= {}
 
-        self.train_size = train_size*len(self.X)        
+        self.train_size = int(train_size*len(self.X))     
         self.random_state = random_state
         
         self.x_train, self.x_valid, self.y_train, self.y_valid = train_test_split(self.X, self.y, train_size = self.train_size, random_state = self.random_state)
         self.x_valid1 = self.x_valid.drop(self.datetime_column, axis = 1)
         self.x_train1 = self.x_train.drop(self.datetime_column, axis = 1)
-
     
     @staticmethod
     def evaluate(test:pd.Series, preds: pd.Series, process:str)->tuple:
@@ -60,61 +60,6 @@ class Regression:
         print('r2_score: {}\nmse:{}\nrmse:{}\nmape:{}\nmae:{}'.format(score, mse, rmse, mape, mae))
 
         return (score, mse, rmse, mape, mae)
-    
-    @staticmethod
-    def get_all_configs()->dict:
-        return ModelAssignment.regression
-    
-    @staticmethod
-    def get_configs(model_types:list)->ModelAssignment.RegressorModelType:
-        available_models= Regression.get_all_configs()
-        models={}
-        for model_type in model_types:
-            if model_type in available_models.keys():
-                models[model_type] = available_models[model_type]
-            else:
-                raise InvalidModelException
-        return models
-        
-    @staticmethod
-    def get_all_model_names()->list:
-        return list(Regression.get_configs().keys())
-    
-    @staticmethod
-    def get_all_models()->list:
-        return list(Regression.get_configs().values())
-    
-    @staticmethod
-    def get_model(model_type:str):
-        return Regression.get_configs([model_type])
-
-    @staticmethod
-    def get_extended_configs(model_types:list)->list:
-
-        knowledge= {}
-        model_assignment= Regression.get_configs(model_types)
-        for model in model_assignment.keys():
-            knowledge[model] = {}
-            signature = inspect.signature(model_assignment[model].__init__)
-            for name, param in signature.parameters.items():
-                #Iterating over parameters of a single model
-                if (name != "self") & (param.default != inspect.Parameter.empty):
-                    knowledge[model][name] = {}
-                    knowledge[model][name]['type']= type(param.default)
-                    knowledge[model][name]['default'] = param.default
-        return knowledge
-
-    @staticmethod
-    def get_dataclasses(model_types:list)->dict:
-
-        data_classes= {}
-        ext_configs= Regression.get_extended_configs(model_types)
-        
-        for model in ext_configs.keys():
-            fields = [(param, ext_configs[model][param]['type'], field(default=ext_configs[model][param]['default'])) for param in ext_configs[model].keys()]
-            data_classes[model] = make_dataclass(model, fields)
-        
-        return data_classes
     
 
 
