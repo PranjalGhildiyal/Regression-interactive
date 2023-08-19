@@ -20,12 +20,13 @@ class Visualize_ML:
 
         # Defining common widgets
         self.features_selector= pn.widgets.MultiChoice(name='Select Features', options= ['ALL'] + list(data.columns), value=['ALL'])
-        self.datetime_column_selector= pn.widgets.Select(name= 'Select datetime column', options= [''] + list(data.columns), value= '')
+        self.datetime_column_selector= pn.widgets.Select(name= 'Select datetime column', options= [None] + list(data.columns), value= None)
         self.target_column_selector = pn.widgets.Select(name='Target Column', options=list(data.columns), value=list(data.columns)[-1])
 
         # Defining common variables
         self.model_types= {}                  # A dict to store the model types of different model type
         self.model_info= {}                   # A dict to store the model info in the form of dataclasses for that model type
+        self.model_info_optimization = {}
         self.evaluate_buttons= {}             # A dict to store the evaluuate model buttns of different model tabs
         self.tab_num= 0                       # Initial tab number
         self.config_panel= {}                 # stores all the buttons
@@ -41,6 +42,7 @@ class Visualize_ML:
         self.random_state_selector = {}
         self.random_state_selector_optimization = {}
         self.gridspecs = {}
+        self.gridspecs_optimization = {}
         self.model_specifics= {}                # Stores RegressionModelAssignment objects for different tabs.
         self.optimization_additionals= {}
         # self.plotly_widgets= {}
