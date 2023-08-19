@@ -1,1 +1,11 @@
 /test_data.csv
+/4.2.0
+
+__pycache__/
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
