@@ -1,12 +1,14 @@
 import panel as pn
 import pandas as pd
 import re
+import numpy as np
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from src.Panel.ML_visualizer import Visualize_ML
-from config.model_types import RegressionModelAssignment
+from config.model_types import RegressionModelAssignment, ScoreInference
 from src.Regression.Regressors import Regressor, Optimizer
 from src.Regression.Regression import Regression
+import subprocess
 
 
 class Visualize_Regression(Visualize_ML):
@@ -14,19 +16,30 @@ class Visualize_Regression(Visualize_ML):
         
         # Adding watcher functions for model type selector
         super().__init__(data)
+        code = """
+                window.location.href="http://localhost:5000/"
+                """
         # self.config_inquiry_engine = self.config_inquiry_engine.regression
         self.config_inquiry_engine = self.config_inquiry_engine.regression
         self.model_type_selector= pn.widgets.Select(name='Select Regression Model', options= [''] + list(self.config_inquiry_engine['models'].keys()), value= '')
+        self.score_inference = ScoreInference([0.2, 0.7])
+        self.mlflow_button = pn.widgets.Button(name='MLflow', button_type='primary', sizing_mode='stretch_width')
+
 
         # Now adding watcher functions
         self.model_type_selector.param.watch(self.create_new_tab, 'value')
+        subprocess.Popen(["mlflow", "ui"])
+        self.mlflow_button.js_on_click(code=code)
+        self.band_error={}
+        self.band_error_optimization= {}
         
 
         self.sidebar= pn.Column(
                                     self.model_type_selector,
                                     self.target_column_selector,
                                     self.features_selector,
-                                    self.datetime_column_selector
+                                    self.datetime_column_selector,
+                                    self.mlflow_button
                                 )
         
         self.tabs = pn.Tabs()
@@ -41,7 +54,7 @@ class Visualize_Regression(Visualize_ML):
                                                     )
         self.template.main.append(self.tabs)
         pn.serve(self.template)
-        
+
         
     def create_new_tab(self, event):
         # Seaching if the model type is already present:
@@ -55,25 +68,22 @@ class Visualize_Regression(Visualize_ML):
             self.model_info_optimization[self.tab_num] = self.model_specifics[self.tab_num].hyperparameters
 
             # Creating initial plotly tab
-            self.plotly_simple[self.tab_num] = pn.pane.Plotly()
-            self.plotly_optimization[self.tab_num] = pn.pane.Plotly()
+            self.plotly_simple[self.tab_num] = pn.GridSpec(max_height= 1000)
+            self.plotly_optimization[self.tab_num] = pn.GridSpec(max_height= 1000)
+
+            #Initiating ScoreInferencing
 
             # Now creating buttons
             self.make_fields(self.tab_num)
 
             # Now that we have made the fields, we now make tabs
-            ##  Making simple page
-            simple_page= pn.Column(self.config_panel[self.tab_num], self.plotly_simple[self.tab_num])
-
-            ##  Making Optimized page
-            optimized_page= pn.Column(self.optimize_config_panel[self.tab_num], self.plotly_optimization[self.tab_num])
 
             # Binding both into one tab
-            tab_model_type= pn.Tabs(
-                                        ('Fit Model', simple_page),
-                                        ('Optimize Hyperparameters', optimized_page)
+            self.tab_model_type= pn.Tabs(
+                                        ('Fit Model', pn.Row(self.config_panel[self.tab_num], self.plotly_simple[self.tab_num], sizing_mode='stretch_width')),
+                                        ('Optimize Hyperparameters', pn.Row(self.optimize_config_panel[self.tab_num], self.plotly_optimization[self.tab_num], sizing_mode='stretch_width'))
                                     )
-            self.tabs.append((model_type, tab_model_type))
+            self.tabs.append((model_type, self.tab_model_type))
             self.tabs.active = self.tab_num
 
             self.tab_num+=1
@@ -110,7 +120,6 @@ class Visualize_Regression(Visualize_ML):
         self.config_panel[tab_num] = pn.Column(component, max_width= 350)
         self.optimize_config_panel[tab_num] = pn.Column(component_optimized, self.optimization_additionals[tab_num], max_width= 350)
 
-        print(self.model_info[tab_num])
 
         for hyperparameter in self.model_info[tab_num].keys():
 
@@ -208,25 +217,10 @@ class Visualize_Regression(Visualize_ML):
         test= self.model_objects[tab_num].data_for_graph['Test']
 
         self.make_plot_pane(tab_num, train, validation, test)
-        
-        self.plotly_simple[tab_num].object= self.gridspecs[tab_num]
+        self.tabs[tab_num][0][1]= self.gridspecs[tab_num]
 
 
     def evaluate_optimized(self, event, tab_num):
-        # hyperparameters = {}
-        # for hyperparameter in self.model_info[tab_num].keys():
-        #     #searching for the widget in self.config_panel[tab_num] whose name is the same as the name of the hyperparameter
-        #     value= self.optimize_config_panel[self.optimize_config_panel.name==hyperparameter].value
-            
-        #     # Now splitting this value
-        #     value= value.replace(" ", "")
-        #     list1= value.split(',')
-        #     hyperparameters[hyperparameter] = {}
-        #     hyperparameters[hyperparameter]['type'] = self.model_info[tab_num][hyperparameter]['type']
-        #     hyperparameters[hyperparameter]['value'] = []
-        #     for i in list1:
-        #         list2= i.split('-')
-        #         hyperparameters[hyperparameter]['value'].append(list2)
         
         hyperparameters = self.model_info_optimization[tab_num]
 
@@ -255,33 +249,132 @@ class Visualize_Regression(Visualize_ML):
         train= self.optimized_model_objects[tab_num].data_for_graph['Train']
         validation= self.optimized_model_objects[tab_num].data_for_graph['Validation']
         test= self.optimized_model_objects[tab_num].data_for_graph['Test']
-        
-        self.plotly_optimization[tab_num].object= self.make_plot_pane(tab_num, train, validation, test, tab_num)
+
+        self.make_plot_pane_optimization(tab_num, train, validation, test, tab_num)
+        self.tabs[tab_num][1][1]= self.gridspecs_optimization[tab_num]
 
 
     def make_plot_pane(self, tab_num:int, train:pd.DataFrame=None, validation:pd.DataFrame=None, test:pd.DataFrame=None):
         if ((train is None) | (test is None) | (validation is None)):
-            self.gridspecs[tab_num] = pn.pane.Plotly()
+            self.gridspecs[tab_num] = pn.GridSpec()
             return 
-        self.gridspecs[tab_num]= pn.GridSpec(mode='warn',height= 800)
+        self.gridspecs[tab_num]= pn.GridSpec(sizing_mode='stretch_width', mode='warn',height= 1000)
 
         self.gridspecs[tab_num][0, 0:5] = self.plot_lineplot_only(df= train)
-        self.gridspecs[tab_num][0, 5] = self.make_statsbox(train)
+        self.gridspecs[tab_num][0, 5] = self.make_statsbox(train, tab_num)
 
         self.gridspecs[tab_num][1, 0:5] = self.plot_lineplot_only(df= validation)
-        self.gridspecs[tab_num][1, 5] = self.make_statsbox(validation)
+        self.gridspecs[tab_num][1, 5] = self.make_statsbox(validation, tab_num)
 
-        widget= pn.widgets.EditableFloatSlider(name='Enter Tolerence (%)', start=0, end=10, step=0.1, value=0)
+        widget= pn.widgets.EditableFloatSlider(name='Enter Tolerence (%)', start=0, end=10, step=0.1, value=0, sizing_mode='stretch_width')
         widget.param.watch(lambda event: self.change_lines(event, tab_num), 'value')
 
-        self.gridspecs[tab_num][2, 0:5] = self.plot_lineplot(df=test, value= widget.value)
-        self.gridspecs[tab_num][2, 5] = self.make_statsbox(test)
+        self.gridspecs[tab_num][2, 0:5] = self.plot_lineplot(df=test, value= widget.value, tab_num=tab_num)
+        self.gridspecs[tab_num][2, 5] = self.make_statsbox(test, tab_num)
+
+        widget1 = pn.widgets.Button(name='Band Error | {}'.format(round(self.band_error[tab_num], 1)), button_type= self.score_inference.button_type(self.band_error[tab_num], 'Band Error'), sizing_mode='stretch_width')
+        widget1.on_click(lambda event: self.update_band_error(widget1, tab_num))
+
+        new_widgetbox= pn.WidgetBox()
+        metric_options = [None] + self.model_specifics[tab_num].scoring_names
+        metric_options= list(set(metric_options) - set(['r2_score', 'neg_root_mean_squared_error', 'neg_mean_squared_error', 'neg_mean_absolute_error']))
+        self.metric_selector[tab_num]= pn.widgets.Select(name= 'Select Additional Metric', options= metric_options, value=None, sizing_mode='stretch_width')
+        self.metric_selector[tab_num].param.watch(lambda event: self.add_metric(event, tab_num), 'value')
+
+        new_widgetbox.extend([pn.Row(widget, widget1, self.metric_selector[tab_num])])
+
+        self.gridspecs[tab_num][3, :]= new_widgetbox
+
+    def make_plot_pane_optimization(self, tab_num:int, train:pd.DataFrame=None, validation:pd.DataFrame=None, test:pd.DataFrame=None):
+        if ((train is None) | (test is None) | (validation is None)):
+            self.gridspecs_optimization[tab_num] = pn.GridSpec()
+            return 
+        self.gridspecs_optimization[tab_num]= pn.GridSpec(sizing_mode='stretch_width', mode='warn',height= 1000)
+
+        self.gridspecs_optimization[tab_num][0, 0:5] = self.plot_lineplot_only(df= train)
+        self.gridspecs_optimization[tab_num][0, 5] = self.make_statsbox(train, tab_num, model='optimization')
+
+        self.gridspecs_optimization[tab_num][1, 0:5] = self.plot_lineplot_only(df= validation)
+        self.gridspecs_optimization[tab_num][1, 5] = self.make_statsbox(validation, tab_num, model='optimization')
+
+        widget= pn.widgets.EditableFloatSlider(name='Enter Tolerence (%)', start=0, end=10, step=0.1, value=0, sizing_mode='stretch_width')
+        widget.param.watch(lambda event: self.change_lines_optimization(event, tab_num), 'value')
+
+        self.gridspecs_optimization[tab_num][2, 0:5] = self.plot_lineplot_optimization(df=test, value= widget.value, tab_num=tab_num)
+        self.gridspecs_optimization[tab_num][2, 5] = self.make_statsbox(test, tab_num, model='optimization')
+
+        widget1 = pn.widgets.Button(name='Band Error | {}'.format(round(self.band_error_optimization[tab_num], 1)), button_type= self.score_inference.button_type(self.band_error_optimization[tab_num], 'Band Error'), sizing_mode='stretch_width')
+        widget1.on_click(lambda event: self.update_band_error_optimization(widget1, tab_num))
+
+        new_widgetbox= pn.WidgetBox()
+        metric_options = [None] + self.model_specifics[tab_num].scoring_names
+        metric_options= list(set(metric_options) - set(['r2_score', 'neg_root_mean_squared_error', 'neg_mean_squared_error', 'neg_mean_absolute_error']))
+        self.metric_selector_optimization[tab_num]= pn.widgets.Select(name= 'Select Additional Metric', options= metric_options, value=None, sizing_mode='stretch_width')
+        self.metric_selector_optimization[tab_num].param.watch(lambda event: self.add_metric(event, tab_num), 'value')
+        new_widgetbox.extend([widget, self.metric_selector_optimization[tab_num]])
+
+        self.gridspecs_optimization[tab_num][3, :] = new_widgetbox
+
+
+    def update_band_error_optimization(self, widget, tab_num):
+        widget.name = 'Band Error | {}'.format(round(self.band_error_optimization[tab_num], 1))
+    
+    def update_band_error(self, widget, tab_num):
+        widget.name = 'Band Error | {}'.format(round(self.band_error[tab_num], 1))
     
     def change_lines(self, event, tab_num):
-        self.gridspecs[tab_num][2, 0:5] = self.plot_lineplot(self.optimized_model_objects[tab_num].data_for_graph['Test'], value= event.new)
+        self.tabs[tab_num][0][1][2, 0:5] = self.plot_lineplot(self.model_objects[tab_num].data_for_graph['Test'], value= event.new, tab_num=tab_num)
+
+    def change_lines_optimization(self, event, tab_num):
+        self.tabs[tab_num][1][1][2, 0:5] = self.plot_lineplot_optimization(self.optimized_model_objects[tab_num].data_for_graph['Test'], value= event.new, tab_num=tab_num)
+    
+    def add_metric(self, event, tab_num):
+        if event.new:
+            metric= self.model_specifics[tab_num].scoring[event.new]
+            train=  self.model_objects[tab_num].data_for_graph['Train']
+            test= self.model_objects[tab_num].data_for_graph['Test']
+            validation = self.model_objects[tab_num].data_for_graph['Validation']
+
+            train_value= round(metric(train['Actual'], train['Predictions']), 1)
+            test_value= round(metric(test['Actual'], test['Predictions']), 1)
+            validation_value= round(metric(validation['Actual'], validation['Predictions']), 1)
+            
+            train_button= pn.widgets.Button(name= '{} | {}'.format(event.new, train_value), button_type= self.score_inference.button_type(train_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
+            test_button= pn.widgets.Button(name= '{} | {}'.format(event.new, test_value), button_type= self.score_inference.button_type(test_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
+            validation_button= pn.widgets.Button(name= '{} | {}'.format(event.new, validation_value), button_type= self.score_inference.button_type(validation_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
+
+            self.tabs[tab_num][0][1][0, 5].append(train_button)
+            self.tabs[tab_num][0][1][1, 5].append(test_button)
+            self.tabs[tab_num][0][1][2, 5].append(validation_button)
+
+            self.metric_selector[tab_num].options.remove(event.new)
+            self.metric_selector[tab_num].value= None
+
+    def add_metric_optimization(self, event, tab_num):
+        if event.new:
+            metric= self.model_specifics[tab_num].scoring[event.new]
+            train=  self.model_objects[tab_num].data_for_graph['Train']
+            test= self.model_objects[tab_num].data_for_graph['Test']
+            validation = self.model_objects[tab_num].data_for_graph['Validation']
+
+            train_value= round(metric(train['Actual'], train['Predictions']), 1)
+            test_value= round(metric(test['Actual'], test['Predictions']), 1)
+            validation_value= round(metric(validation['Actual'], validation['Predictions']), 1)
+            
+            train_button= pn.widgets.Button(name= '{} | {}'.format(event.new, train_value), button_type= self.score_inference.button_type(train_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
+            test_button= pn.widgets.Button(name= '{} | {}'.format(event.new, test_value), button_type= self.score_inference.button_type(test_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
+            validation_button= pn.widgets.Button(name= '{} | {}'.format(event, validation_value), button_type= self.score_inference.button_type(validation_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
+
+            self.tabs[tab_num][1][1][0, 5].append(train_button)
+            self.tabs[tab_num][1][1][1, 5].append(test_button)
+            self.tabs[tab_num][1][1][2, 5].append(validation_button)
+
+            self.metric_selector_optimization[tab_num].options.remove(event.new)
+            self.metric_selector_optimization[tab_num].value=None
+
 
         
-    def plot_lineplot(self, df, value, event=None):
+    def plot_lineplot(self, df, value, tab_num, event=None):
 
         # Create figure with secondary y-axis
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -302,12 +395,76 @@ class Visualize_Regression(Visualize_ML):
         fig.add_trace(go.Scatter(x=df.index, y=df['-Predictions'], fill='tonexty', mode='lines', line_color='rgba(255,165,0,255)', showlegend=False), secondary_y=False)
 
         # Add traces
-        fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Original_Visc', line=dict(color='blue')), secondary_y=False)
-        fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='new_preds', line=dict(color='red')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Actual Values', line=dict(color='blue')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='Predictions', line=dict(color='red')), secondary_y=False)
 
-        # Set titles
-        fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
-        fig.update_yaxes(title_text="<b>secondary</b>", secondary_y=True)
+        fig.update_layout(autosize= True)
+
+        # # Set titles
+        # fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
+        # fig.update_yaxes(title_text="<b>secondary</b>", secondary_y=True)
+
+        df['error'] = np.nan
+        mask= df['Predictions'] > df['+Actual']
+        if df[mask].shape[0] > 0:
+            df.loc[mask, 'error'] = (df.loc[mask, 'Predictions'] - df.loc[mask, '+Actual'])/df.loc[mask, '+Actual']
+
+        mask= df['Predictions'].between(df['-Actual'],df['+Actual'])
+        if df[mask].shape[0] > 0:
+            df.loc[mask, 'error'] = 0
+
+        mask= df['Predictions'] < df['-Actual']
+        if df[mask].shape[0] > 0:
+            df.loc[mask, 'error'] = (df.loc[mask, '-Actual'] - df.loc[mask, 'Predictions'])/df.loc[mask, '-Actual']
+
+        self.band_error[tab_num] = df['error'].mean()
+
+        return fig
+    
+    def plot_lineplot_optimization(self, df, value, tab_num, event=None):
+
+        # Create figure with secondary y-axis
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        # Making boundaries
+        df['+Actual'] = (1 + value) * df['Actual']
+        df['-Actual'] = (1 - value) * df['Actual']
+
+        df['+Predictions'] = (1 + value) * df['Predictions']
+        df['-Predictions'] = (1 - value) * df['Predictions']
+
+        # Shade Area
+        fig.add_trace(go.Scatter(x=df.index, y=df['+Actual'], fill= None, mode='lines', line_color='rgba(0,0,255,0.2)', showlegend=False), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['-Actual'], fill='tonexty', mode='lines', line_color='rgba(0,0,255,0.2)', showlegend=False), secondary_y=False)
+
+        # Shade Area
+        fig.add_trace(go.Scatter(x=df.index, y=df['+Predictions'], fill= None, mode='lines', line_color='rgba(255,165,0,255)', showlegend=False), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['-Predictions'], fill='tonexty', mode='lines', line_color='rgba(255,165,0,255)', showlegend=False), secondary_y=False)
+
+        # Add traces
+        fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Actual Values', line=dict(color='blue')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='Predictions', line=dict(color='red')), secondary_y=False)
+
+        fig.update_layout(autosize= True)
+
+        # # Set titles
+        # fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
+        # fig.update_yaxes(title_text="<b>secondary</b>", secondary_y=True)
+
+        df['error'] = np.nan
+        mask= df['Predictions'] > df['+Actual']
+        if df[mask].shape[0] > 0:
+            df.loc[mask, 'error'] = (df.loc[mask, 'Predictions'] - df.loc[mask, '+Actual'])/df.loc[mask, '+Actual']
+
+        mask= df['Predictions'].between(df['-Actual'],df['+Actual'])
+        if df[mask].shape[0] > 0:
+            df.loc[mask, 'error'] = 0
+
+        mask= df['Predictions'] < df['-Actual']
+        if df[mask].shape[0] > 0:
+            df.loc[mask, 'error'] = (df.loc[mask, '-Actual'] - df.loc[mask, 'Predictions'])/df.loc[mask, '-Actual']
+
+        self.band_error_optimization[tab_num] = df['error'].mean()
 
         return fig
     
@@ -317,51 +474,32 @@ class Visualize_Regression(Visualize_ML):
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
         # Add traces
-        fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Original_Visc', line=dict(color='blue')), secondary_y=False)
-        fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='new_preds', line=dict(color='red')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Actual Values', line=dict(color='blue')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='Predictions', line=dict(color='red')), secondary_y=False)
 
-        # Set titles
-        fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
-        fig.update_yaxes(title_text="<b>secondary</b>", secondary_y=True)
+        # # Set titles
+        # fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
+        # fig.update_yaxes(title_text="<b>secondary</b>", secondary_y=True)
+
+        fig.update_layout(autosize= True)
 
         return fig
 
-    def make_statsbox(self, data):
+    def make_statsbox(self, data, tab_num, model=None):
         score, mse, rmse, mape, mae = Regression.evaluate(data['Actual'],data['Predictions'])
 
-        score_indicator = pn.indicators.Number(value=(score), default_color='black', name='R2 score', format='{value}')
-        card_score= pn.Card(
-                            score_indicator,
-                            styles={'background': 'lightgray'},
-                            hide_header=True
-                            )
-        
-        mse_indicator = pn.indicators.Number(value=(mse), default_color='black', name='MSE', format='{value}')
-        card_mse= pn.Card(
-                            mse_indicator,
-                            styles={'background': 'lightgray'},
-                            hide_header=True
-                            )
-        
-        rmse_indicator = pn.indicators.Number(value=(rmse), default_color='black', name='RMSE', format='{value}')
-        card_rmse= pn.Card(
-                            rmse_indicator,
-                            styles={'background': 'lightgray'},
-                            hide_header=True
-                            )
-        
-        mape_indicator = pn.indicators.Number(value=(mape), default_color='black', name='MAPE', format='{value}')
-        card_mape= pn.Card(
-                            mape_indicator,
-                            styles={'background': 'lightgray'},
-                            hide_header=True
-                            )
-        
-        mae_indicator = pn.indicators.Number(value=(mae), default_color='black', name='MAE', format='{value}')
-        card_mae= pn.Card(
-                            mae_indicator,
-                            styles={'background': 'lightgray'},
-                            hide_header=True
-                            )
-        
-        return pn.Column(score_indicator, mse_indicator, rmse_indicator, mape_indicator, mae_indicator, scrollable=True)
+        output= pn.Column(scroll=True)
+
+        score_button= pn.widgets.Button(name= 'R2 Score | {}'.format(round(score, 1)), button_type= self.score_inference.button_type(score, 'score'), sizing_mode= 'stretch_width', button_style='outline')
+        mse_button= pn.widgets.Button(name= 'MSE | {}'.format(round(mse, 1)), button_type= self.score_inference.button_type(mse, 'error'), sizing_mode= 'stretch_width', button_style='outline')
+        rmse_button= pn.widgets.Button(name= 'RMSE | {}'.format(round(rmse, 1)), button_type= self.score_inference.button_type(rmse, 'error'), sizing_mode= 'stretch_width', button_style='outline')
+        mape_button= pn.widgets.Button(name= 'MAPE | {}'.format(round(mape, 1)), button_type= self.score_inference.button_type(mape, 'error'), sizing_mode= 'stretch_width', button_style='outline')
+        mae_button= pn.widgets.Button(name= 'MAE | {}'.format(round(mae, 1)), button_type= self.score_inference.button_type(mae, 'error'), sizing_mode= 'stretch_width', button_style='outline')
+
+        if model:
+            self.band_error_optimization[tab_num] = mape
+        else:
+            self.band_error[tab_num] = mape
+
+        output.extend([score_button, mse_button, rmse_button, mape_button, mae_button])
+        return output

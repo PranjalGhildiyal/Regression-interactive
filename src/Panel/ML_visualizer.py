@@ -45,6 +45,8 @@ class Visualize_ML:
         self.gridspecs_optimization = {}
         self.model_specifics= {}                # Stores RegressionModelAssignment objects for different tabs.
         self.optimization_additionals= {}
+        self.metric_selector= {}
+        self.metric_selector_optimization= {}
         # self.plotly_widgets= {}
         # self.plotly_widgets_optimization= {}
 

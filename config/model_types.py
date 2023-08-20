@@ -77,6 +77,12 @@ class ModelArchive():
         self.dimensionality_reduction:dict= {}
         self.scalers:dict= {}
         self.classification_scoring = {}
+        self.score_key = {'lower': 'danger',
+                       'middle': 'warning',
+                       'upper': 'success'}
+        self.error_key = {'upper': 'danger',
+                       'middle': 'warning',
+                       'lower': 'success'}
 
         #----------------------------------------------------------------
         #
@@ -155,15 +161,19 @@ class RegressionModelAssignment:
     def scoring_names(self):
         return list(self.archive.regression['scoring'])
     
+    @property
+    def scoring(self):
+        return self.archive.regression['scoring']
+    
 
 @dataclass
 class ClassificationModelAssignment:
     model_type:str
-    model_archive= ModelArchive().classification
+    archive= ModelArchive()
 
     @property
     def model(self):
-        return self.model_archive[self.model_type]
+        return self.archive.classification[self.model_type]
     @property
     def hyperparameters(self):
         knowledge = {}
@@ -184,11 +194,43 @@ class ClassificationModelAssignment:
     
     @property
     def all_available_model_names(self):
-        return list(self.model_archive.keys())
+        return list(self.archive.classification['models'].keys())
     
     @property
     def all_available_models(self):
-        return list(self.model_archive.values())
+        return list(self.archive.classification['models'].values())
+    
+    @property
+    def scoring_names(self):
+        return list(self.archive.classification['scoring'])
+    
+    @property
+    def scoring(self):
+        return self.archive.classification['scoring']
+    
+@dataclass
+class ScoreInference:
+    knowledge= ModelArchive()
+    mapping: list
+    
+    def button_type(self, score, scoring):
+        if 'score' in scoring.lower():
+            if score < self.mapping[0]:
+                return self.knowledge.score_key['lower']
+            elif self.mapping[0] <= score < self.mapping[1]:
+                return self.knowledge.score_key['middle']
+            else:
+                return self.knowledge.score_key['upper']
+        else:
+            if score < self.mapping[0]:
+                return self.knowledge.error_key['lower']
+            elif self.mapping[0] <= score < self.mapping[1]:
+                return self.knowledge.error_key['middle']
+            else:
+                return self.knowledge.error_key['upper']
+
+    
+        
     
     
     
