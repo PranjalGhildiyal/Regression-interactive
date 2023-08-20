@@ -47,6 +47,7 @@ class Visualize_ML:
         self.optimization_additionals= {}
         self.metric_selector= {}
         self.metric_selector_optimization= {}
+        
         # self.plotly_widgets= {}
         # self.plotly_widgets_optimization= {}
 
