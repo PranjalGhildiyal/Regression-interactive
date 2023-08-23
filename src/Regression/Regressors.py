@@ -34,8 +34,8 @@ class Regressor(Regression):
 
     def fit_model(self)->'Regressor':
 
-        mlflow.set_tracking_uri('')
         session = mlflow.start_run()
+        
         with session :
             
             ## Building a model
