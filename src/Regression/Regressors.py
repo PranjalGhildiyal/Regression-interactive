@@ -34,6 +34,7 @@ class Regressor(Regression):
 
     def fit_model(self)->'Regressor':
 
+        mlflow.set_tracking_uri('')
         session = mlflow.start_run()
         with session :
             
@@ -154,6 +155,7 @@ class Optimizer(Regression):
         self.optimization_traectory= optuna.visualization.plot_optimization_history(study)
 
         # Random Forest: final best model   
+        mlflow.set_tracking_uri('')
         session = mlflow.start_run()
         with session :
             # Building the model

@@ -16,20 +16,30 @@ class Visualize_Regression(Visualize_ML):
         
         # Adding watcher functions for model type selector
         super().__init__(data)
-        code = """
+        mlflow_url = """
                 window.location.href="http://localhost:5000/"
+                """
+        my_github = """
+                window.location.href="https://github.com/PranjalGhildiyal"
+                """
+        my_linkedin =  """
+                window.location.href="https://www.linkedin.com/in/pranjal-ghildiyal/"
                 """
         # self.config_inquiry_engine = self.config_inquiry_engine.regression
         self.config_inquiry_engine = self.config_inquiry_engine.regression
         self.model_type_selector= pn.widgets.Select(name='Select Regression Model', options= [''] + list(self.config_inquiry_engine['models'].keys()), value= '')
         self.score_inference = ScoreInference([0.2, 0.7])
         self.mlflow_button = pn.widgets.Button(name='MLflow', button_type='primary', sizing_mode='stretch_width')
+        self.github_button = pn.widgets.Button(name='Github', button_type= 'default', sizing_mode= 'stretch_width', icon='robot')
+        self.linkedin_button= pn.widgets.Button(name='LinekdIn', button_type= 'primary', sizing_mode= 'stretch_width', icon='progress')
 
 
         # Now adding watcher functions
         self.model_type_selector.param.watch(self.create_new_tab, 'value')
         subprocess.Popen(["mlflow", "ui"])
-        self.mlflow_button.js_on_click(code=code)
+        self.mlflow_button.js_on_click(code=mlflow_url)
+        self.github_button.js_on_click(code=my_github)
+        self.linkedin_button.js_on_click(code=my_linkedin)
         self.band_error={}
         self.band_error_optimization= {}
         
@@ -39,7 +49,9 @@ class Visualize_Regression(Visualize_ML):
                                     self.target_column_selector,
                                     self.features_selector,
                                     self.datetime_column_selector,
-                                    self.mlflow_button
+                                    self.mlflow_button,
+                                    pn.Spacer(height= 375),
+                                    pn.WidgetBox('# Follow me on:', pn.Row(self.github_button, self.linkedin_button), align='end')
                                 )
         
         self.tabs = pn.Tabs()
@@ -168,7 +180,7 @@ class Visualize_Regression(Visualize_ML):
         self.optimize_config_panel[tab_num].append(self.optimize_evaluate_buttons[tab_num])
 
     def change_hyperparameter(self, event, hyperparameter, tab_num):
-        self.model_info[tab_num][hyperparameter]['default'] = event
+        self.model_info[tab_num][hyperparameter]['default'] = event.new
 
     def change_optimizer_hyperparameter(self, event, hyperparameter, tab_num):
 
@@ -260,16 +272,16 @@ class Visualize_Regression(Visualize_ML):
             return 
         self.gridspecs[tab_num]= pn.GridSpec(sizing_mode='stretch_width', mode='warn',height= 1000)
 
-        self.gridspecs[tab_num][0, 0:5] = self.plot_lineplot_only(df= train)
+        self.gridspecs[tab_num][0, 0:5] = self.plot_lineplot_only(df= train, process='Training Data')
         self.gridspecs[tab_num][0, 5] = self.make_statsbox(train, tab_num)
 
-        self.gridspecs[tab_num][1, 0:5] = self.plot_lineplot_only(df= validation)
+        self.gridspecs[tab_num][1, 0:5] = self.plot_lineplot_only(df= validation, process= 'Validation Data')
         self.gridspecs[tab_num][1, 5] = self.make_statsbox(validation, tab_num)
 
         widget= pn.widgets.EditableFloatSlider(name='Enter Tolerence (%)', start=0, end=10, step=0.1, value=0, sizing_mode='stretch_width')
         widget.param.watch(lambda event: self.change_lines(event, tab_num), 'value')
 
-        self.gridspecs[tab_num][2, 0:5] = self.plot_lineplot(df=test, value= widget.value, tab_num=tab_num)
+        self.gridspecs[tab_num][2, 0:5] = self.plot_lineplot(df=test, value= widget.value, tab_num=tab_num, process= 'Testing Data')
         self.gridspecs[tab_num][2, 5] = self.make_statsbox(test, tab_num)
 
         widget1 = pn.widgets.Button(name='Band Error | {}'.format(round(self.band_error[tab_num], 1)), button_type= self.score_inference.button_type(self.band_error[tab_num], 'Band Error'), sizing_mode='stretch_width')
@@ -291,16 +303,16 @@ class Visualize_Regression(Visualize_ML):
             return 
         self.gridspecs_optimization[tab_num]= pn.GridSpec(sizing_mode='stretch_width', mode='warn',height= 1000)
 
-        self.gridspecs_optimization[tab_num][0, 0:5] = self.plot_lineplot_only(df= train)
+        self.gridspecs_optimization[tab_num][0, 0:5] = self.plot_lineplot_only(df= train, process='Training Data')
         self.gridspecs_optimization[tab_num][0, 5] = self.make_statsbox(train, tab_num, model='optimization')
 
-        self.gridspecs_optimization[tab_num][1, 0:5] = self.plot_lineplot_only(df= validation)
+        self.gridspecs_optimization[tab_num][1, 0:5] = self.plot_lineplot_only(df= validation, process='Validation Data')
         self.gridspecs_optimization[tab_num][1, 5] = self.make_statsbox(validation, tab_num, model='optimization')
 
         widget= pn.widgets.EditableFloatSlider(name='Enter Tolerence (%)', start=0, end=10, step=0.1, value=0, sizing_mode='stretch_width')
         widget.param.watch(lambda event: self.change_lines_optimization(event, tab_num), 'value')
 
-        self.gridspecs_optimization[tab_num][2, 0:5] = self.plot_lineplot_optimization(df=test, value= widget.value, tab_num=tab_num)
+        self.gridspecs_optimization[tab_num][2, 0:5] = self.plot_lineplot_optimization(df=test, value= widget.value, tab_num=tab_num, process='Testing Data')
         self.gridspecs_optimization[tab_num][2, 5] = self.make_statsbox(test, tab_num, model='optimization')
 
         widget1 = pn.widgets.Button(name='Band Error | {}'.format(round(self.band_error_optimization[tab_num], 1)), button_type= self.score_inference.button_type(self.band_error_optimization[tab_num], 'Band Error'), sizing_mode='stretch_width')
@@ -323,10 +335,10 @@ class Visualize_Regression(Visualize_ML):
         widget.name = 'Band Error | {}'.format(round(self.band_error[tab_num], 1))
     
     def change_lines(self, event, tab_num):
-        self.tabs[tab_num][0][1][2, 0:5] = self.plot_lineplot(self.model_objects[tab_num].data_for_graph['Test'], value= event.new, tab_num=tab_num)
+        self.tabs[tab_num][0][1][2, 0:5] = self.plot_lineplot(self.model_objects[tab_num].data_for_graph['Test'], value= event.new, tab_num=tab_num, process='Testing Data')
 
     def change_lines_optimization(self, event, tab_num):
-        self.tabs[tab_num][1][1][2, 0:5] = self.plot_lineplot_optimization(self.optimized_model_objects[tab_num].data_for_graph['Test'], value= event.new, tab_num=tab_num)
+        self.tabs[tab_num][1][1][2, 0:5] = self.plot_lineplot_optimization(self.optimized_model_objects[tab_num].data_for_graph['Test'], value= event.new, tab_num=tab_num, process='Testing Data')
     
     def add_metric(self, event, tab_num):
         if event.new:
@@ -344,10 +356,13 @@ class Visualize_Regression(Visualize_ML):
             validation_button= pn.widgets.Button(name= '{} | {}'.format(event.new, validation_value), button_type= self.score_inference.button_type(validation_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
 
             self.tabs[tab_num][0][1][0, 5].append(train_button)
-            self.tabs[tab_num][0][1][1, 5].append(test_button)
-            self.tabs[tab_num][0][1][2, 5].append(validation_button)
+            self.tabs[tab_num][0][1][1, 5].append(validation_button)
+            self.tabs[tab_num][0][1][2, 5].append(test_button)
 
-            self.metric_selector[tab_num].options.remove(event.new)
+            options= self.metric_selector[tab_num].options
+            options= list(set(options) - set([event.new]))
+
+            self.metric_selector[tab_num].options=options
             self.metric_selector[tab_num].value= None
 
     def add_metric_optimization(self, event, tab_num):
@@ -366,15 +381,18 @@ class Visualize_Regression(Visualize_ML):
             validation_button= pn.widgets.Button(name= '{} | {}'.format(event, validation_value), button_type= self.score_inference.button_type(validation_value, event.new), sizing_mode= 'stretch_width', button_style='outline')
 
             self.tabs[tab_num][1][1][0, 5].append(train_button)
-            self.tabs[tab_num][1][1][1, 5].append(test_button)
-            self.tabs[tab_num][1][1][2, 5].append(validation_button)
+            self.tabs[tab_num][1][1][1, 5].append(validation_button)
+            self.tabs[tab_num][1][1][2, 5].append(test_button)
 
-            self.metric_selector_optimization[tab_num].options.remove(event.new)
+            options= self.metric_selector_optimization[tab_num].options
+            options= list(set(options) - set([event.new]))
+
+            self.metric_selector_optimization[tab_num].options = options
             self.metric_selector_optimization[tab_num].value=None
 
 
         
-    def plot_lineplot(self, df, value, tab_num, event=None):
+    def plot_lineplot(self, df, value, tab_num, event=None, process:str='Testing Data'):
 
         # Create figure with secondary y-axis
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -398,7 +416,7 @@ class Visualize_Regression(Visualize_ML):
         fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Actual Values', line=dict(color='blue')), secondary_y=False)
         fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='Predictions', line=dict(color='red')), secondary_y=False)
 
-        fig.update_layout(autosize= True)
+        fig.update_layout(height= 400, title_text=process)
 
         # # Set titles
         # fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
@@ -419,9 +437,9 @@ class Visualize_Regression(Visualize_ML):
 
         self.band_error[tab_num] = df['error'].mean()
 
-        return fig
+        return pn.pane.Plotly(fig, sizing_mode='stretch_both')
     
-    def plot_lineplot_optimization(self, df, value, tab_num, event=None):
+    def plot_lineplot_optimization(self, df, value, tab_num, event=None, process:str='Testing Data'):
 
         # Create figure with secondary y-axis
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -445,7 +463,7 @@ class Visualize_Regression(Visualize_ML):
         fig.add_trace(go.Scatter(x=df.index, y=df['Actual'], name='Actual Values', line=dict(color='blue')), secondary_y=False)
         fig.add_trace(go.Scatter(x=df.index, y=df['Predictions'], name='Predictions', line=dict(color='red')), secondary_y=False)
 
-        fig.update_layout(autosize= True)
+        fig.update_layout(height= 400, title_text=process)
 
         # # Set titles
         # fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
@@ -466,9 +484,9 @@ class Visualize_Regression(Visualize_ML):
 
         self.band_error_optimization[tab_num] = df['error'].mean()
 
-        return fig
+        return pn.pane.Plotly(fig, sizing_mode='stretch_both')
     
-    def plot_lineplot_only(self, df, event=None):
+    def plot_lineplot_only(self, df, process, event=None):
 
         # Create figure with secondary y-axis
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -481,9 +499,9 @@ class Visualize_Regression(Visualize_ML):
         # fig.update_yaxes(title_text="<b>primary</b>", secondary_y=False)
         # fig.update_yaxes(title_text="<b>secondary</b>", secondary_y=True)
 
-        fig.update_layout(autosize= True)
+        fig.update_layout(height= 400, title_text=process)
 
-        return fig
+        return pn.pane.Plotly(fig, sizing_mode='stretch_both')
 
     def make_statsbox(self, data, tab_num, model=None):
         score, mse, rmse, mape, mae = Regression.evaluate(data['Actual'],data['Predictions'])

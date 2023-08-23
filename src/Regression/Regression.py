@@ -34,7 +34,6 @@ class Regression:
         self.data_test = self.data.tail(int(test_size*len(self.data)))
 
         self.data = self.data.drop(self.data_test.index)
-        print(self.data.columns)
         self.y = self.data[self.target_column]
         self.X = self.data.drop(self.target_column, axis = 1)
         self.X_test = self.data_test.drop(target_column, axis = 1)
