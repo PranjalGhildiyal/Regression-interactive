@@ -33,7 +33,7 @@ class Regressor(Regression):
             self.hyperparameters_new[hyperparameter] = hyperparameters[hyperparameter]['default']
 
     def fit_model(self)->'Regressor':
-
+        mlflow.set_tracking_uri('')
         session = mlflow.start_run()
         
         with session :
