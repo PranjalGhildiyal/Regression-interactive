@@ -1,7 +1,7 @@
 from sklearn.linear_model import ElasticNet, SGDRegressor, LinearRegression, Ridge, Lasso
 from sklearn.svm import SVR
 from xgboost import XGBRegressor
-from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor, VotingRegressor, StackingRegressor, GradientBoostingRegressor, ExtraTreesRegressor, BaggingRegressor, AdaBoostRegressor
+from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor, GradientBoostingRegressor, ExtraTreesRegressor, BaggingRegressor, AdaBoostRegressor
 from dataclasses import dataclass, field, make_dataclass
 from typing import List, Union, Type
 import sklearn.metrics as metrics
@@ -38,8 +38,6 @@ class ModelArchive():
                                         'AdaboostRegressor': AdaBoostRegressor,
                                         'BaggingRegressor': BaggingRegressor,
                                         'HistGradientBoostingRegressor':  HistGradientBoostingRegressor,
-                                        'VotingRegressor': VotingRegressor,
-                                        'StackingRegressor': StackingRegressor,
                                         'GradientBoostingRegressor': GradientBoostingRegressor,
                                         'ExtraTreesRegressor':ExtraTreesRegressor,
                                         'XGBRegressor': XGBRegressor,
@@ -137,15 +135,24 @@ class RegressionModelAssignment:
         return self.archive.regression['models'][self.model_type]
     @property
     def hyperparameters(self):
-        knowledge = {}
-        signature = inspect.signature(self.model.__init__)
-        for name, param in signature.parameters.items():
-            #Iterating over parameters of a single model
-            if (name != "self") & (param.default != inspect.Parameter.empty):
-                knowledge[name] = {}
-                knowledge[name]['type']= type(param.default)
-                knowledge[name]['default'] = param.default
-        return knowledge
+        print('Getting parameters now')
+        params= self.model().get_params()
+        hyperparameters_all= {}
+        for i, j in params.items():
+            print(i)
+            hyperparameters_all[i] = {}
+            hyperparameters_all[i]['default'] = j
+            hyperparameters_all[i]['type'] = type(j)
+        # knowledge = {}
+        # signature = inspect.signature(self.model.__init__)
+        # for name, param in signature.parameters.items():
+        #     #Iterating over parameters of a single model
+        #     if (name != "self") & (param.default != inspect.Parameter.empty):
+        #         knowledge[name] = {}
+        #         knowledge[name]['type']= type(param.default)
+        #         knowledge[name]['default'] = param.default
+        # return knowledge
+        return hyperparameters_all
     
     @property
     def hyperparameters_dataclass(self):
@@ -176,15 +183,22 @@ class ClassificationModelAssignment:
         return self.archive.classification[self.model_type]
     @property
     def hyperparameters(self):
-        knowledge = {}
-        signature = inspect.signature(self.model.__init__)
-        for name, param in signature.parameters.items():
-            #Iterating over parameters of a single model
-            if (name != "self") & (param.default != inspect.Parameter.empty):
-                knowledge[name] = {}
-                knowledge[name]['type']= type(param.default)
-                knowledge[name]['default'] = param.default
-        return knowledge
+        params= self.model().get_params()
+        hyperparameters= {}
+        for i, j in params.items():
+            hyperparameters[i] = {}
+            hyperparameters[i]['default'] = j
+            hyperparameters[i]['type'] = type(j)
+        # knowledge = {}
+        # signature = inspect.signature(self.model.__init__)
+        # for name, param in signature.parameters.items():
+        #     #Iterating over parameters of a single model
+        #     if (name != "self") & (param.default != inspect.Parameter.empty):
+        #         knowledge[name] = {}
+        #         knowledge[name]['type']= type(param.default)
+        #         knowledge[name]['default'] = param.default
+        # return knowledge
+        return hyperparameters
     
     @property
     def hyperparameters_dataclass(self):

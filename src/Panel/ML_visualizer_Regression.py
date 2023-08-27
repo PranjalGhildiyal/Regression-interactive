@@ -1,6 +1,7 @@
 import panel as pn
 import pandas as pd
 import re
+import math
 import numpy as np
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -71,22 +72,28 @@ class Visualize_Regression(Visualize_ML):
     def create_new_tab(self, event):
         # Seaching if the model type is already present:
         if event.new not in self.tab_numbers.keys():
+            print(event.new)
             model_type= self.model_types[self.tab_num]= self.model_type_selector.value
             self.tab_numbers[event.new] = self.tab_num
 
+            print('Done initializing create_new_tab')
+
             #Defining dataclasses for this selection:
             self.model_specifics[self.tab_num] = RegressionModelAssignment(event.new)
+            print('Creating mode info')
             self.model_info[self.tab_num] = self.model_specifics[self.tab_num].hyperparameters
+            print('model info created successfully!')
             self.model_info_optimization[self.tab_num] = self.model_specifics[self.tab_num].hyperparameters
 
             # Creating initial plotly tab
-            self.plotly_simple[self.tab_num] = pn.GridSpec(max_height= 1000)
-            self.plotly_optimization[self.tab_num] = pn.GridSpec(max_height= 1000)
+            self.plotly_simple[self.tab_num] = pn.GridSpec(height= 1000)
+            self.plotly_optimization[self.tab_num] = pn.GridSpec(height= 1000)
 
             #Initiating ScoreInferencing
 
             # Now creating buttons
             self.make_fields(self.tab_num)
+            print('fields created successfully!')
 
             # Now that we have made the fields, we now make tabs
 
@@ -105,7 +112,7 @@ class Visualize_Regression(Visualize_ML):
         
 
     def make_fields(self, tab_num):
-
+        print('in make_fields')
         self.random_state_selector[tab_num] = pn.widgets.FloatInput(name='Random State for train-test-split', value=0, start=0, end=100, step=1)
         self.train_size_selectors[tab_num] = pn.widgets.EditableRangeSlider(name='Range Slider', start=0, end=1, value=(0.6, 0.8), step=0.01)
         component= pn.Column('##### Train | Validation | Test', self.train_size_selectors[tab_num], self.random_state_selector[tab_num], sizing_mode='stretch_width',styles=dict(background='WhiteSmoke'))
@@ -132,11 +139,12 @@ class Visualize_Regression(Visualize_ML):
         self.config_panel[tab_num] = pn.Column(component, max_width= 350)
         self.optimize_config_panel[tab_num] = pn.Column(component_optimized, self.optimization_additionals[tab_num], max_width= 350)
 
-
+        print('now making hyperparameter boxes')
         for hyperparameter in self.model_info[tab_num].keys():
-
+            print(hyperparameter)
             default_value= self.model_info[tab_num][hyperparameter]['default']
             widget_box= pn.WidgetBox('### {}'.format(hyperparameter))
+            print('\t{}'.format('now making'))
 
 
             if self.model_info[tab_num][hyperparameter]['type'] == bool:
@@ -145,6 +153,8 @@ class Visualize_Regression(Visualize_ML):
                 widget_box.append(widget)
                 
             if self.model_info[tab_num][hyperparameter]['type'] == float:
+                if math.isnan(default_value):
+                    default_value=0
                 widget = pn.widgets.EditableFloatSlider(name=hyperparameter, start=0, end=100, step=0.1, value=float(default_value))
                 widget_box.append(widget)
                                                         
