@@ -1,6 +1,7 @@
 import panel as pn
 import pandas as pd
 import re
+import math
 import numpy as np
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -145,6 +146,8 @@ class Visualize_Regression(Visualize_ML):
                 widget_box.append(widget)
                 
             if self.model_info[tab_num][hyperparameter]['type'] == float:
+                if math.isnan(default_value):
+                    default_value=0
                 widget = pn.widgets.EditableFloatSlider(name=hyperparameter, start=0, end=100, step=0.1, value=float(default_value))
                 widget_box.append(widget)
                                                         
