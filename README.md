@@ -12,6 +12,7 @@ Whether you're a seasoned data scientist or just beginning your journey, the Int
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [First Look](#first-look)
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -26,6 +27,9 @@ Whether you're a seasoned data scientist or just beginning your journey, the Int
 ## Introduction
 
 The Interactive Model Dashboard is a powerful tool designed to streamline your machine learning experimentation process. It allows you to import your data, choose from a variety of machine learning models, and apply them to your dataset. Furthermore, you can dynamically change the target variable to observe how different models perform against different objectives.
+
+## First look
+![Intro Video](#https://youtu.be/CCoSwKsrzFs)
 
 ## Features
 
