@@ -31,10 +31,6 @@ The Interactive Model Dashboard is a powerful tool designed to streamline your m
 ## First look
 [![Watch the video](https://img.youtube.com/vi/CCoSwKsrzFs/hqdefault.jpg)](https://www.youtube.com/embed/CCoSwKsrzFs)
 
-[<img src="https://img.youtube.com/vi/CCoSwKsrzFs/hqdefault.jpg" width="600" height="300"
-/>](https://www.youtube.com/embed/CCoSwKsrzFs)
-
-
 ## Features
 
 - Interactive dashboard to explore and apply machine learning models.
