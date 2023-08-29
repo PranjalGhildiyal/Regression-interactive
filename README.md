@@ -1,7 +1,7 @@
 # Regression interactive
 Interactive Model Dashboard.
 
-Welcome to the Interactive Model Dashboard project! This powerful tool empowers you to seamlessly explore and apply a diverse array of machine learning models to your dataset. With the added flexibility to dynamically change your target variable on the fly, you're in complete control of your experiments. The dashboard effortlessly opens in your web browser, providing a user-friendly and interactive experience.
+Welcome to my Interactive Model Dashboard project! This powerful tool empowers you to seamlessly explore and apply a diverse array of machine learning models to your dataset. With the added flexibility to dynamically change your target variable on the fly, you're in complete control of your experiments. The dashboard effortlessly opens in your web browser, providing a user-friendly and interactive experience.
 
 One of the standout features of this project is its adaptability. Not only can you choose from a pre-existing selection of machine learning models, but you also have the flexibility to easily import and use any model of your choice. This allows you to tailor your experiments to your unique needs, making the dashboard an ideal platform for both novices and experts in the field.
 
