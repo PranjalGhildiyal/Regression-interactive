@@ -135,11 +135,9 @@ class RegressionModelAssignment:
         return self.archive.regression['models'][self.model_type]
     @property
     def hyperparameters(self):
-        print('Getting parameters now')
         params= self.model().get_params()
         hyperparameters_all= {}
         for i, j in params.items():
-            print(i)
             hyperparameters_all[i] = {}
             hyperparameters_all[i]['default'] = j
             hyperparameters_all[i]['type'] = type(j)
