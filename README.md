@@ -12,6 +12,7 @@ Welcome to the **Interactive Model Dashboard** project! This tool allows you to 
 - [Usage](#usage)
 - [Changing Target Variable](#changing-target-variable)
 - [MLflow Integration](#mlflow-integration)
+- [Modifying Model Types](#adding-new-models)
 - [Accessing MLflow UI](#accessing-mlflow-ui)
 - [Contributing](#contributing)
 - [License](#license)
@@ -33,7 +34,7 @@ The Interactive Model Dashboard is a powerful tool designed to streamline your m
 
 Before you begin, ensure you have the following prerequisites:
 
-- Python (>= 3.6)
+- Python (== 3.9)
 - Git
 
 ### Installation
@@ -54,8 +55,8 @@ Before you begin, ensure you have the following prerequisites:
 
 ## Usage
 To launch the Interactive Model Dashboard, follow these steps:
-1. open test.ipynb
-2. import the data to experiment on.
+1. Open [test.ipynb](example.py)
+2. Import the data to experiment on.
 3. Use the dashboard to make different models
 4. Track models with mlflow by triggering the mlflow ui through the MLflow button on the sidebar.
 
@@ -71,7 +72,8 @@ All experiments conducted within the Interactive Model Dashboard are automatical
 2. Compare results across different experiments.
 3. Visualize metrics and artifacts using the MLflow UI.
 
-   
+## Adding new models
+Not finding the existing imported models useful? We got you <!-- Blinking Eye Emoji -->
 
 I hope you find the Interactive Model Dashboard helpful for your machine learning experiments. If you have any questions or feedback, please don't hesitate to reach out.
 
