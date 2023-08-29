@@ -84,7 +84,10 @@ Not finding the existing imported models useful? We got you 😉
    
    ![Model_Inclusion](https://github.com/PranjalGhildiyal/Regression-interactive/blob/main/Attachments/model_inclusion.png)
 
-### VOILA! Your new model must be added to the model list in the next run!
+#### VOILA! Your new model must be added to the model list in the next run!
+
+## License
+This project is licensed under the [MIT](https://opensource.org/license/mit/) License.
 
 
 I hope you find the Interactive Model Dashboard helpful for your machine learning experiments. If you have any questions or feedback, please don't hesitate to reach out.
