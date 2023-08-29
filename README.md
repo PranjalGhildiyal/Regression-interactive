@@ -1,4 +1,5 @@
-# Interactive Model Dashboard with Dynamic Target Variable Selection
+# Regression interactive
+Interactive Model Dashboard with Dynamic Target Variable Selection
 
 Welcome to the **Interactive Model Dashboard** project! This tool allows you to seamlessly explore and apply various machine learning models to your dataset, all while providing the flexibility to change your target variable on the fly. The dashboard opens in your web browser, enabling a user-friendly and interactive experience. Additionally, the project leverages MLflow for model logging and management, giving you the ability to track and compare your model experiments effortlessly.
 
