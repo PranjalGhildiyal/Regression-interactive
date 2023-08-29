@@ -40,7 +40,7 @@ The Interactive Model Dashboard is a powerful tool designed to streamline your m
 
 Before you begin, ensure you have the following prerequisites:
 
-- Python (== 3.9)
+- Python >= 3.6 (preferred: 3.9)
 - Git
 
 ### Installation
