@@ -1,7 +1,13 @@
 /test_data.csv
 /4.2.0
+/development
+
 
 __pycache__/
+config/__pycache__/
+src/Exceptions/__pycache__/
+src/Panel/__pycache__/
+src/Regression/__pycache__/
 
 # Unit test / coverage reports
 .tox/
