@@ -12,7 +12,7 @@ Welcome to the **Interactive Model Dashboard** project! This tool allows you to 
 - [Usage](#usage)
 - [Changing Target Variable](#changing-target-variable)
 - [MLflow Integration](#mlflow-integration)
-- [Modifying Model Types](#adding-new-models)
+- [Adding new models](#adding-new-models)
 - [Accessing MLflow UI](#accessing-mlflow-ui)
 - [Contributing](#contributing)
 - [License](#license)
@@ -73,7 +73,16 @@ All experiments conducted within the Interactive Model Dashboard are automatical
 3. Visualize metrics and artifacts using the MLflow UI.
 
 ## Adding new models
-Not finding the existing imported models useful? We got you <!-- Blinking Eye Emoji -->
+Not finding the existing imported models useful? We got you 😉
+1. Go to [model_types.py](config/model_types.py)
+2. Import the model you want to use
+   ![Import Image](Attachments/import_model.png)
+   (make sure to install any packages required)
+3. Include model.
+   ![Model_Inclusion](Attachments/model_inclusion.png)
+
+   ### VOILA! Your new model must be added to the model list in the next run!
+
 
 I hope you find the Interactive Model Dashboard helpful for your machine learning experiments. If you have any questions or feedback, please don't hesitate to reach out.
 
