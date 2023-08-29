@@ -14,7 +14,6 @@ Welcome to the **Interactive Model Dashboard** project! This tool allows you to 
 - [MLflow Integration](#mlflow-integration)
 - [Adding new models](#adding-new-models)
 - [Accessing MLflow UI](#accessing-mlflow-ui)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Introduction
@@ -89,7 +88,7 @@ Not finding the existing imported models useful? We got you 😉
 ## License
 This project is licensed under the [MIT](https://opensource.org/license/mit/) License.
 
-
+## 
 I hope you find the Interactive Model Dashboard helpful for your machine learning experiments. If you have any questions or feedback, please don't hesitate to reach out.
 
 Happy experimenting!
