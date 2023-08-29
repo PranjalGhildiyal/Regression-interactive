@@ -47,9 +47,6 @@ class Visualize_ML:
         self.optimization_additionals= {}
         self.metric_selector= {}
         self.metric_selector_optimization= {}
-        
-        # self.plotly_widgets= {}
-        # self.plotly_widgets_optimization= {}
 
 
     @staticmethod                   
@@ -70,53 +67,6 @@ class Visualize_ML:
     def change_button_color(widget,change_to='success'):
         widget.button_type=change_to
         
-
-
-    
-
-            
-
-
-    # def evaluate_optimized(event, tab_num):
-
-
-
-            
-    # def change_text_fields(self, event=None):
-    #     pass
-
-
-    # # def change(self, event= None):
-
-    # #     self.datetime_column= self.datetime_column_selector.value
-    # #     if self.datetime_column != '':
-    # #         self.data[self.datetime_column] = pd.to_datetime(self.data[self.datetime_column])
-    # #         max_datetime = self.data[self.datetime_column].max()
-    # #         min_datetime = self.data[self.datetime_column].min()
-    # #         self.evaluate_buttons[self.tab_num]= pn.widgets.Button(name='Go', button_type= 'primary')
-            
-    # #         self.datetime_picker = pn.widgets.DatetimeRangePicker(value=(min_datetime, min_datetime),
-    # #                                         start=min_datetime.date(), end=max_datetime.date(),
-    # #                                         military_time=False, name='Datetime Range')
-    # #     else:
-    # #         self.datetime_picker= pn.Column()
-        
-    # #     self.model_types[self.tab_num]= self.model_type_selector.value
-    # #     features = self.features_selector.value
-
-    # #     #Defining dataclasses for this selection:
-    # #     model_info= self.model_info[self.tab_num] = Regression.get_dataclasses([self.model_types[self.tab_num]])
-
-    # #     self.make_fields(self.tab_num)
-
-        
-
-
-
-
-
-    #     for hyperparameter in model_info.keys():##########################################################################################################################
-
 
 
         

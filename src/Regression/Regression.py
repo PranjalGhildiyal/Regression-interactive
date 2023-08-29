@@ -53,8 +53,8 @@ class Regression:
         mape = mean_absolute_percentage_error(test,preds)
         mae= mean_absolute_error(test, preds)
 
-        print('For {}'.format(process))
-        print('r2_score: {}\nmse:{}\nrmse:{}\nmape:{}\nmae:{}'.format(score, mse, rmse, mape, mae))
+        # print('For {}'.format(process))
+        # print('r2_score: {}\nmse:{}\nrmse:{}\nmape:{}\nmae:{}'.format(score, mse, rmse, mape, mae))
 
         return (score, mse, rmse, mape, mae)
     
