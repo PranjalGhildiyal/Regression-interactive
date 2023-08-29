@@ -76,10 +76,10 @@ All experiments conducted within the Interactive Model Dashboard are automatical
 Not finding the existing imported models useful? We got you 😉
 1. Go to [model_types.py](config/model_types.py)
 2. Import the model you want to use
-   ![Import Image](Attachments/import_model.png)
+   ![Import Image](https://github.com/PranjalGhildiyal/Regression-interactive/blob/main/Attachments/import_model.png)
    (make sure to install any packages required)
 3. Include model.
-   ![Model_Inclusion](Attachments/model_inclusion.png)
+   ![Model_Inclusion](https://github.com/PranjalGhildiyal/Regression-interactive/blob/main/Attachments/model_inclusion.png)
 
 ### VOILA! Your new model must be added to the model list in the next run!
 
