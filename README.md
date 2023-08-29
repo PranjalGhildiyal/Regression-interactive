@@ -29,7 +29,8 @@ Whether you're a seasoned data scientist or just beginning your journey, the Int
 The Interactive Model Dashboard is a powerful tool designed to streamline your machine learning experimentation process. It allows you to import your data, choose from a variety of machine learning models, and apply them to your dataset. Furthermore, you can dynamically change the target variable to observe how different models perform against different objectives.
 
 ## First look
-[![Watch the video](https://img.youtube.com/vi/<VIDEO_ID>/hqdefault.jpg)](https://www.youtube.com/embed/CCoSwKsrzFs)
+[![Watch the video](https://img.youtube.com/vi/CCoSwKsrzFs/hqdefault.jpg)](https://www.youtube.com/embed/CCoSwKsrzFs)
+
 [<img src="https://img.youtube.com/vi/CCoSwKsrzFs/hqdefault.jpg" width="600" height="300"
 />](https://www.youtube.com/embed/CCoSwKsrzFs)
 
