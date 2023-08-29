@@ -33,7 +33,6 @@ class Regressor(Regression):
             self.hyperparameters_new[hyperparameter] = hyperparameters[hyperparameter]['default']
 
     def fit_model(self)->'Regressor':
-        mlflow.set_tracking_uri('')
         session = mlflow.start_run()
         
         with session :
@@ -84,9 +83,9 @@ class Regressor(Regression):
             mlflow.log_metric("mape_test", self.test_mape)
             mlflow.log_metric("mae_test", self.train_mae)
 
-            mlflow.sklearn.log_model(self.model, "model")
+            mlflow.end_run()
             
-            return self
+        return self
         
 class Optimizer(Regression):
 
@@ -154,8 +153,7 @@ class Optimizer(Regression):
         trial = study.best_trial
         self.optimization_traectory= optuna.visualization.plot_optimization_history(study)
 
-        # Random Forest: final best model   
-        mlflow.set_tracking_uri('')
+        # Random Forest: final best model
         session = mlflow.start_run()
         with session :
             # Building the model
@@ -211,8 +209,9 @@ class Optimizer(Regression):
             mlflow.log_metric("rmse_test", self.test_rmse)
             mlflow.log_metric("mape_test", self.test_mape)
             mlflow.log_metric("mae_test", self.train_mae)
+            mlflow.end_run()
 
-            return self 
+        return self 
     
     @staticmethod
     def classify_math_number(input_str):

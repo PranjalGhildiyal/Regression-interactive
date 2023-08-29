@@ -61,10 +61,7 @@ class Visualize_Regression(Visualize_ML):
         self.template = pn.template.BootstrapTemplate(
                                                         title="Regressor",
                                                         sidebar=self.sidebar,
-                                                        header_color = '#FFFFFF',
-                                                        background_color = '#FFFFFF',
-                                                        corner_radius = 1,
-                                                        main_layout = ''
+                                                        header_color = '#FFFFFF'
                                                     )
         self.template.main.append(self.tabs)
         pn.serve(self.template)
