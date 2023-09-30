@@ -3,7 +3,6 @@
 /development
 
 
-__pycache__/
 config/__pycache__/
 src/Exceptions/__pycache__/
 src/Panel/__pycache__/
