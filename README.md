@@ -1,10 +1,18 @@
-# Interactive Model Dashboard with Dynamic Target Variable Selection
+# Regression interactive
+Interactive Model Dashboard.
 
-Welcome to the **Interactive Model Dashboard** project! This tool allows you to seamlessly explore and apply various machine learning models to your dataset, all while providing the flexibility to change your target variable on the fly. The dashboard opens in your web browser, enabling a user-friendly and interactive experience. Additionally, the project leverages MLflow for model logging and management, giving you the ability to track and compare your model experiments effortlessly.
+Welcome to my Interactive Model Dashboard project! This powerful tool empowers you to seamlessly explore and apply a diverse array of machine learning models to your dataset. With the added flexibility to dynamically change your target variable on the fly, you're in complete control of your experiments. The dashboard effortlessly opens in your web browser, providing a user-friendly and interactive experience.
+
+One of the standout features of this project is its adaptability. Not only can you choose from a pre-existing selection of machine learning models, but you also have the flexibility to easily import and use any model of your choice. This allows you to tailor your experiments to your unique needs, making the dashboard an ideal platform for both novices and experts in the field.
+
+In addition, the project integrates seamlessly with MLflow, enabling you to conveniently log and manage your model experiments. By leveraging MLflow, you gain the power to track and compare various model configurations effortlessly, making informed decisions about your machine learning strategies.
+
+Whether you're a seasoned data scientist or just beginning your journey, the Interactive Model Dashboard provides an intuitive interface that ensures your machine learning experiments are both enlightening and efficient. I am excited to have you on board as you unlock the potential of this remarkable tool.
 
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [First Look](#first-look)
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -20,6 +28,9 @@ Welcome to the **Interactive Model Dashboard** project! This tool allows you to 
 
 The Interactive Model Dashboard is a powerful tool designed to streamline your machine learning experimentation process. It allows you to import your data, choose from a variety of machine learning models, and apply them to your dataset. Furthermore, you can dynamically change the target variable to observe how different models perform against different objectives.
 
+## First look
+[![Watch the video](https://img.youtube.com/vi/CCoSwKsrzFs/hqdefault.jpg)](https://www.youtube.com/embed/CCoSwKsrzFs)
+
 ## Features
 
 - Interactive dashboard to explore and apply machine learning models.
@@ -33,7 +44,7 @@ The Interactive Model Dashboard is a powerful tool designed to streamline your m
 
 Before you begin, ensure you have the following prerequisites:
 
-- Python (== 3.9)
+- Python >= 3.6 (preferred: 3.9)
 - Git
 
 ### Installation
@@ -76,12 +87,12 @@ Not finding the existing imported models useful? We got you 😉
 1. Go to [model_types.py](config/model_types.py)
 2. Import the model you want to use
    
-   ![Import Image](https://github.com/PranjalGhildiyal/Regression-interactive/blob/main/Attachments/import_model.png)
-   
+   <img src="./Attachments/model_inclusion.png" alt="model import">
+
    (make sure to install any packages required)
 3. Include model.
    
-   ![Model_Inclusion](https://github.com/PranjalGhildiyal/Regression-interactive/blob/main/Attachments/model_inclusion.png)
+   <img src="./Attachments/import_model.png" alt="model inclusion">
 
 #### VOILA! Your new model must be added to the model list in the next run!
 
